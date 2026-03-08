@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+
+  # ── NGINX Load Balancer ─────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-lb
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app1
+      - app2
+      - app3
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ── App Server 1 ────────────────────────────────────────────────
+  app1:
+    build: ./app
+    container_name: app-server-1
+    environment:
+      - SERVER_NAME=App Server 1
+      - SERVER_COLOR=#00ff88
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # ── App Server 2 ────────────────────────────────────────────────
+  app2:
+    build: ./app
+    container_name: app-server-2
+    environment:
+      - SERVER_NAME=App Server 2
+      - SERVER_COLOR=#00d4ff
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # ── App Server 3 ────────────────────────────────────────────────
+  app3:
+    build: ./app
+    container_name: app-server-3
+    environment:
+      - SERVER_NAME=App Server 3
+      - SERVER_COLOR=#ffd700
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
