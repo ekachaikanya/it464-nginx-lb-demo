@@ -25,11 +25,11 @@ docker compose up --build -d
 docker compose ps
 
 # 3. ทดสอบ Load Balancing
-curl http://localhost
+curl http://localhost:8080
 
 # กด F5 ซ้ำๆ ใน browser หรือ:
 for i in {1..9}; do
-  curl -s http://localhost | grep -o 'App Server [0-9]'
+  curl -s http://localhost:8080 | grep -o 'App Server [0-9]'
 done
 ```
 
@@ -37,20 +37,20 @@ done
 
 ```bash
 # ดู Nginx stats
-curl http://localhost/status
+curl http://localhost:8080/status
 
 # Health check
-curl http://localhost/health
+curl http://localhost:8080/health
 
 # ดู log realtime
 docker compose logs -f nginx
 
 # Scale app1 เป็น 2 instances
-docker compose up --scale app1=2 -d
+#docker compose up --scale app1=2 -d
 
 # หยุด server 1 ดูว่า traffic failover ไปไหม
 docker compose stop app1
-curl http://localhost   # ควรยังตอบสนองได้
+curl http://localhost:8080   # ควรยังตอบสนองได้
 
 # เริ่ม server 1 ใหม่
 docker compose start app1
